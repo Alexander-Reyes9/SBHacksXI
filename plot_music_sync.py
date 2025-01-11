@@ -118,28 +118,6 @@ for tp1, tp2 in wp_s[::len(wp_s)//n_arrows]:
     con.set_in_layout(False)  # This is needed to preserve layout
     ax2.add_artist(con)
 
-###########################################################
-# -------------
-# Next steps...
-# -------------
-#
-# Alright, you might ask where to go from here.
-# Once we have the warping path between our two signals,
-# we could realize different applications.
-# One example is a player which enables you to navigate between
-# different recordings of the same piece of music,
-# e.g. one of Wagner's symphonies played by an orchestra or in a piano-reduced version.
-#
-# Another example is that you could apply time scale modification algorithms,
-# e.g. speed up the slower signal to the tempo of the faster one.
-#
-# ----------
-# Literature
-# ----------
-#
-# .. [1] Meinard Müller, Fundamentals of Music Processing — Audio, Analysis, Algorithms, Applications.
-#     Springer Verlag, 2015.
-
 
 #create a new transition track using the warping path 
 #and the two original tracks
