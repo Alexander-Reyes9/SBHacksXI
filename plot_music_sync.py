@@ -1,148 +1,141 @@
-# coding: utf-8
-"""
-===============================================
-Music Synchronization with Dynamic Time Warping
-===============================================
-
-In this short tutorial, we demonstrate the use of dynamic time warping (DTW) for music synchronization
-which is implemented in `librosa`.
-
-We assume that you are familiar with the algorithm and focus on the application. Further information about
-the algorithm can be found in the literature, e. g. [1]_.
-
-Our example consists of two recordings of the first bars of the famous
-brass section lick in Stevie Wonder's rendition of "Sir Duke".
-Due to differences in tempo, the first recording lasts for ca. 7 seconds and the second recording for ca. 5 seconds.
-Our objective is now to find an alignment between these two recordings by using DTW.
-
-"""
-
-# Code source: Stefan Balke
-# License: ISC
-# sphinx_gallery_thumbnail_number = 4
-
 import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-import soundfile as sf
 import librosa
+import soundfile as sf
+import matplotlib.pyplot as plt
 
 
-############################################################
-# ---------------------
-# Load Audio Recordings
-# ---------------------
-# First, let's load a first version of our audio recordings.
-x_1, fs = librosa.load('bunny.mp3')
-# And a second version, slightly faster.
-x_2, fs = librosa.load('music.mp3')
+def align_audio_with_dtw(x, wp, fs, hop_length=512):
+    """
+    Align an audio signal using a DTW warping path.
 
-fig, ax = plt.subplots(nrows=2, sharex=True, sharey=True)
-librosa.display.waveshow(x_1, sr=fs, ax=ax[0])
-ax[0].set(title='Slower Version $X_1$')
-ax[0].label_outer()
+    Parameters:
+    -----------
+    x : np.ndarray
+        Audio signal to align
+    wp : np.ndarray
+        Warping path (frames)
+    fs : int
+        Sampling rate
+    hop_length : int, optional
+        Hop length used for feature extraction
 
-librosa.display.waveshow(x_2, sr=fs, ax=ax[1])
-ax[1].set(title='Faster Version $X_2$')
-#save it to a file
+    Returns:
+    --------
+    np.ndarray
+        Aligned audio signal
+    """
+    # Map frames to samples
+    time_warped = librosa.frames_to_samples(wp[:, 1], hop_length=hop_length)
+    time_original = librosa.frames_to_samples(wp[:, 0], hop_length=hop_length)
 
-#########################
-# -----------------------
-# Extract Chroma Features
-# -----------------------
-hop_length = 1024
-
-x_1_chroma = librosa.feature.chroma_cqt(y=x_1, sr=fs,
-                                         hop_length=hop_length)
-x_2_chroma = librosa.feature.chroma_cqt(y=x_2, sr=fs,
-                                         hop_length=hop_length)
-
-fig, ax = plt.subplots(nrows=2, sharey=True)
-img = librosa.display.specshow(x_1_chroma, x_axis='time',
-                               y_axis='chroma',
-                               hop_length=hop_length, ax=ax[0])
-ax[0].set(title='Chroma Representation of $X_1$')
-librosa.display.specshow(x_2_chroma, x_axis='time',
-                         y_axis='chroma',
-                         hop_length=hop_length, ax=ax[1])
-ax[1].set(title='Chroma Representation of $X_2$')
-fig.colorbar(img, ax=ax)
-plt.savefig('music.png')
-########################
-# ----------------------
-# Align Chroma Sequences
-# ----------------------
-D, wp = librosa.sequence.dtw(X=x_1_chroma, Y=x_2_chroma, metric='cosine')
-wp_s = librosa.frames_to_time(wp, sr=fs, hop_length=hop_length)
-
-fig, ax = plt.subplots()
-img = librosa.display.specshow(D, x_axis='time', y_axis='time', sr=fs,
-                               cmap='gray_r', hop_length=hop_length, ax=ax)
-ax.plot(wp_s[:, 1], wp_s[:, 0], marker='o', color='r')
-ax.set(title='Warping Path on Acc. Cost Matrix $D$',
-       xlabel='Time $(X_2)$', ylabel='Time $(X_1)$')
-fig.colorbar(img, ax=ax)
+    # Interpolate the audio signal based on the warping path
+    aligned_audio = np.interp(
+        np.arange(time_original[-1] + 1),
+        time_warped,
+        x[:min(len(x), len(time_warped))],
+    )
+    return aligned_audio
 
 
-##############################################
-# --------------------------------------------
-# Alternative Visualization in the Time Domain
-# --------------------------------------------
-#
-# We can also visualize the warping path directly on our time domain signals.
-# Red lines connect corresponding time positions in the input signals.
-# (Thanks to F. Zalkow for the nice visualization.)
-from matplotlib.patches import ConnectionPatch
+def create_full_transition(x_1, x_2, wp, fs, crossfade_duration=1.0):
+    """
+    Create a full audio file containing the entire first track that transitions into the second track.
 
-fig, (ax1, ax2) = plt.subplots(nrows=2, sharex=True, sharey=True, figsize=(8,4))
+    Parameters:
+    -----------
+    x_1 : np.ndarray
+        First audio signal (played in full)
+    x_2 : np.ndarray
+        Second audio signal (transitioned into)
+    wp : np.ndarray
+        Warping path (frames)
+    fs : int
+        Sampling rate
+    crossfade_duration : float, optional
+        Duration of the crossfade between tracks in seconds
 
-# Plot x_2
-librosa.display.waveshow(x_2, sr=fs, ax=ax2)
-ax2.set(title='Faster Version $X_2$')
+    Returns:
+    --------
+    np.ndarray
+        The complete audio signal with transition
+    """
+    # Convert crossfade duration to samples
+    crossfade_samples = int(crossfade_duration * fs)
 
-# Plot x_1
-librosa.display.waveshow(x_1, sr=fs, ax=ax1)
-ax1.set(title='Slower Version $X_1$')
-ax1.label_outer()
+    # Align the second track using the warping path
+    aligned_x2 = align_audio_with_dtw(x_2, wp, fs)
 
+    # Ensure the first track is long enough for the crossfade
+    transition_start = len(x_1) - crossfade_samples
+    if transition_start < 0:
+        raise ValueError("First audio signal is too short for the specified crossfade duration.")
 
-n_arrows = 20
-for tp1, tp2 in wp_s[::len(wp_s)//n_arrows]:
-    # Create a connection patch between the aligned time points
-    # in each subplot
-    con = ConnectionPatch(xyA=(tp1, 0), xyB=(tp2, 0),
-                          axesA=ax1, axesB=ax2,
-                          coordsA='data', coordsB='data',
-                          color='r', linestyle='--',
-                          alpha=0.5)
-    con.set_in_layout(False)  # This is needed to preserve layout
-    ax2.add_artist(con)
+    # Calculate the total length of the output signal
+    total_length = max(len(x_1), transition_start + len(aligned_x2))
 
+    # Create the output array
+    output = np.zeros(total_length)
 
-#create a new transition track using the warping path 
-#and the two original tracks
-# Create a new transition track using the warping path and the two original tracks
+    # Copy the first signal
+    output[:len(x_1)] = x_1
 
-# First, we need to find the length of the longest track
-max_len = max(len(x_1), len(x_2))
+    # Create crossfade weights
+    fade_out = np.linspace(1, 0, crossfade_samples)
+    fade_in = np.linspace(0, 1, crossfade_samples)
 
-# Create a new track with the same length
-transition_track = np.zeros(max_len)
+    # Adjust lengths to match the transition region
+    aligned_x2 = aligned_x2[:len(output) - transition_start]
 
-# Fill the new track with the first track
-transition_track[:len(x_1)] = x_1
+    # Debugging shape mismatches
+    print(f"Output shape: {output[transition_start:transition_start + crossfade_samples].shape}")
+    print(f"Fade out shape: {fade_out.shape}")
+    print(f"Aligned x2 fade in shape: {aligned_x2[:crossfade_samples].shape}")
 
-# Replace the values with the second track where the warping path is
-for i, j in wp:
-    transition_track[i] = x_2[j]
+    # Apply the crossfade
+    output[transition_start:transition_start + crossfade_samples] *= fade_out
+    aligned_x2[:crossfade_samples] *= fade_in
 
-# Save the transition track to a file
-sf.write('transition_track.wav', transition_track, fs)
+    # Add the second signal starting at the transition point
+    output[transition_start:transition_start + len(aligned_x2)] += aligned_x2
 
-#first, we need to find the length of the longest track
-#and create a new track with the same length
-#we will fill the new track with the first track
-#and then replace the values with the second track
-#where the warping path is
+    return output
 
 
+def main():
+    try:
+        # Load audio files
+        print("Loading audio files...")
+        x_1, fs = librosa.load("bunny.mp3", sr=None)
+        x_2, fs = librosa.load("music.mp3", sr=None)
+
+        # Ensure mono audio
+        if x_1.ndim > 1:
+            x_1 = np.mean(x_1, axis=1)
+        if x_2.ndim > 1:
+            x_2 = np.mean(x_2, axis=1)
+
+        print("Calculating chroma features...")
+        # Calculate chroma features
+        hop_length = 1024
+        x_1_chroma = librosa.feature.chroma_cqt(y=x_1, sr=fs, hop_length=hop_length)
+        x_2_chroma = librosa.feature.chroma_cqt(y=x_2, sr=fs, hop_length=hop_length)
+
+        print("Computing DTW...")
+        # Compute DTW
+        D, wp = librosa.sequence.dtw(X=x_1_chroma, Y=x_2_chroma, metric="cosine")
+
+        print("Creating transition...")
+        # Create full audio with transition
+        full_audio = create_full_transition(x_1, x_2, wp, fs, crossfade_duration=2.0)
+
+        print("Saving output file...")
+        # Save the result
+        sf.write("full_transition.wav", full_audio, fs)
+        print("Done! Output saved as 'full_transition.wav'")
+
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+
+
+if __name__ == "__main__":
+    main()
