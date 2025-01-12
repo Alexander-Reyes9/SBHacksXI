@@ -10,14 +10,14 @@ def create_reverb_tail(audio, sr=22050, room_size=0.8, damping=0.4, decay=3.0):
     """
     # Create decay envelope with longer decay
     tail_length = int(decay * sr)
-    decay_envelope = np.exp(-np.linspace(0, decay, tail_length) / (room_size * 1.5))  # Slower decay
+    decay_envelope = np.exp(-np.linspace(0, decay, tail_length) / (room_size * 1.5))
     
     # Create room impulse response with less damping for more echo
     impulse = np.random.randn(tail_length) * decay_envelope
     impulse = impulse * (1 - damping * np.linspace(0, 1, tail_length))
     
     # Normalize impulse response with stronger presence
-    impulse = impulse / np.sum(np.abs(impulse)) * 1.2  # Increased reverb intensity
+    impulse = impulse / np.sum(np.abs(impulse)) * 1.2
     
     # Apply convolution for reverb
     reverb_tail = fftconvolve(audio, impulse)[:len(audio) + tail_length]
@@ -26,7 +26,7 @@ def create_reverb_tail(audio, sr=22050, room_size=0.8, damping=0.4, decay=3.0):
     input_rms = np.sqrt(np.mean(audio**2))
     reverb_rms = np.sqrt(np.mean(reverb_tail**2))
     if reverb_rms > 0:
-        reverb_tail = reverb_tail * (input_rms / reverb_rms) * 1.1  # Increased reverb volume
+        reverb_tail = reverb_tail * (input_rms / reverb_rms) * 1.1
     
     return reverb_tail
 
@@ -37,7 +37,7 @@ try:
     song2 = pd.AudioSegment.from_mp3("bunny.mp3")
 
     # Define transition length (in milliseconds)
-    transition_length = 5000  # 5 seconds (longer transition for more echo)
+    transition_length = 5000  # 5 seconds
 
     # Convert AudioSegment to numpy array
     y1 = np.array(song1.get_array_of_samples())
@@ -73,45 +73,44 @@ try:
     reverb_tail = create_reverb_tail(
         reverb_segment, 
         sr=22050,
-        room_size=0.8,    # Larger room size for more echo
-        damping=0.4,      # Less damping for longer echoes
-        decay=3.0         # Longer decay time
+        room_size=0.8,
+        damping=0.4,
+        decay=3.0
     )
 
-    # Create smooth crossfade curves (adjusted for more echo overlap)
-    fade_out = np.linspace(1, 0, len(reverb_tail))**1.5  # Less aggressive fade out
-    fade_in = np.linspace(0, 1, len(reverb_tail))**1.5   # Less aggressive fade in
+    # Calculate the overlap window
+    overlap_start = transition_point - transition_samples
+    overlap_length = len(reverb_tail)
+
+    # Create overlapping fade curves
+    fade_out = np.linspace(1, 0, overlap_length)**1.5
+    fade_in = np.linspace(0, 1, overlap_length)**1.5
 
     # Create output array
-    output_length = transition_point + len(reverb_tail) + (len(y2) - transition_samples)
+    output_length = transition_point + len(reverb_tail)
     transition = np.zeros(output_length)
 
-    # Add first song up to transition point
+    # Add first song up to the end
     transition[:transition_point] = y1[:transition_point]
 
-    # Add reverb tail with fade out (increased reverb mix)
-    reverb_start = transition_point - transition_samples
-    reverb_end = reverb_start + len(reverb_tail)
+    # Add reverb tail with fade out
+    reverb_start = overlap_start
+    reverb_end = reverb_start + overlap_length
     transition[reverb_start:reverb_end] = \
-        transition[reverb_start:reverb_end] * fade_out + reverb_tail * fade_out * 0.85  # Increased reverb mix
+        transition[reverb_start:reverb_end] * fade_out + reverb_tail * fade_out * 0.85
 
-    # Add second song with fade in
-    second_song_start = transition_point
-    fade_in_samples = min(len(fade_in), len(y2))
-    
-    # Ensure the arrays match in size for the fade-in portion
-    fade_in = fade_in[:fade_in_samples]
-    second_song_fade = y2[:fade_in_samples]
-    
-    # Add second song with balanced presence
-    transition[second_song_start:second_song_start + fade_in_samples] += second_song_fade * fade_in * 0.95
-    
+    # Add second song with fade in starting at the same point
+    second_song_fade = y2[:overlap_length]
+    transition[reverb_start:reverb_end] += second_song_fade * fade_in * 0.95
+
     # Add the rest of the second song
-    remaining_samples = len(transition) - (second_song_start + fade_in_samples)
+    remaining_start = reverb_end
+    remaining_samples = len(y2[overlap_length:])
     if remaining_samples > 0:
-        samples_to_add = min(remaining_samples, len(y2[fade_in_samples:]))
-        transition[second_song_start + fade_in_samples:second_song_start + fade_in_samples + samples_to_add] += \
-            y2[fade_in_samples:fade_in_samples + samples_to_add]
+        remaining_end = remaining_start + remaining_samples
+        if remaining_end > len(transition):
+            remaining_end = len(transition)
+        transition[remaining_start:remaining_end] += y2[overlap_length:overlap_length + (remaining_end - remaining_start)]
 
     # Final volume normalization while preserving dynamics
     max_amplitude = np.max(np.abs(transition))
@@ -128,7 +127,224 @@ try:
 
     # Export the result
     transition_segment.export("reverb_transition.mp3", format="mp3")
-    print("Transition with enhanced reverb tail created and saved as reverb_transition.mp3")
+    print("Transition with overlapping fades created and saved as reverb_transition.mp3")
 
 except Exception as e:
     print(f"An error occurred: {str(e)}")
+
+
+def create_scratch_transition(x_1, x_2, x_disc, fs, transition_point_ratio=0.75):
+    """
+    Create a transition using disc scratch sound between two songs
+    
+    Parameters:
+    -----------
+    x_1 : np.ndarray
+        First audio signal
+    x_2 : np.ndarray
+        Second audio signal
+    x_disc : np.ndarray
+        Disc scratch sound effect
+    fs : int
+        Sampling rate
+    transition_point_ratio : float
+        Position in first song where transition occurs (0-1)
+    """
+    try:
+        # Ensure mono audio
+        if x_1.ndim > 1:
+            x_1 = np.mean(x_1, axis=1)
+        if x_2.ndim > 1:
+            x_2 = np.mean(x_2, axis=1)
+        if x_disc.ndim > 1:
+            x_disc = np.mean(x_disc, axis=1)
+
+        # Normalize audio
+        x_1 = x_1 / np.max(np.abs(x_1))
+        x_2 = x_2 / np.max(np.abs(x_2))
+        x_disc = x_disc / np.max(np.abs(x_disc))
+
+        # Calculate transition point
+        transition_point = int(len(x_1) * transition_point_ratio)
+        
+        # Create short fade out for first song (100ms)
+        fade_samples = int(0.1 * fs)
+        fade_out = np.linspace(1, 0, fade_samples)
+        x_1[transition_point-fade_samples:transition_point] *= fade_out
+
+        # Calculate total length
+        disc_duration = len(x_disc)
+        total_length = transition_point + disc_duration + len(x_2)
+        
+        # Create output array
+        output = np.zeros(total_length)
+        
+        # Add first song up to transition
+        output[:transition_point] = x_1[:transition_point]
+        
+        # Add disc scratch
+        output[transition_point:transition_point+disc_duration] = x_disc
+        
+        # Create short fade in for second song (100ms)
+        fade_in = np.linspace(0, 1, fade_samples)
+        x_2_start = transition_point + disc_duration
+        
+        # Add second song after disc scratch
+        if fade_samples < len(x_2):
+            x_2[:fade_samples] *= fade_in
+            output[x_2_start:x_2_start+len(x_2)] = x_2
+
+        # Normalize final output
+        output = output / np.max(np.abs(output))
+        
+        return output
+
+    except Exception as e:
+        print(f"Error in create_scratch_transition: {str(e)}")
+        return None
+
+def scratch_transition_main():
+    try:
+        # Load audio files
+        print("Loading audio files...")
+        x_1, fs = lb.load("bunny.mp3", sr=None)
+        x_2, fs = lb.load("music.mp3", sr=None)
+        x_disc, fs = lb.load("disc.mp3", sr=None)
+        x_disc = x_disc[:int(fs * 3)]  # Limit disc scratch to 100ms
+
+        print("Creating scratch transition...")
+        # Create transition
+        full_audio = create_scratch_transition(x_1, x_2, x_disc, fs)
+
+        if full_audio is not None:
+            print("Saving output file...")
+            # Save the result
+            sf.write("scratch_transition.mp3", full_audio, fs)
+            print("Done! Output saved as 'scratch_transition.wav'")
+        else:
+            print("Failed to create transition")
+
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+
+scratch_transition_main()
+def create_scratch_crossfade(x_1, x_2, x_disc, fs, transition_point_ratio=0.75, overlap_duration=1.0):
+    """
+    Create a crossfade transition with overlapping songs and disc scratch effect
+    """
+    try:
+        # Ensure mono audio
+        if x_1.ndim > 1:
+            x_1 = np.mean(x_1, axis=1)
+        if x_2.ndim > 1:
+            x_2 = np.mean(x_2, axis=1)
+        if x_disc.ndim > 1:
+            x_disc = np.mean(x_disc, axis=1)
+
+        # Normalize audio
+        x_1 = x_1 / np.max(np.abs(x_1))
+        x_2 = x_2 / np.max(np.abs(x_2))
+        x_disc = x_disc / np.max(np.abs(x_disc)) * 0.8
+
+        # Calculate transition points
+        transition_point = int(len(x_1) * transition_point_ratio)
+        overlap_samples = int(overlap_duration * fs)
+        
+        # Create crossfade envelopes
+        fade_out = np.linspace(1, 0, overlap_samples)**1.5
+        fade_in = np.linspace(0, 1, overlap_samples)**1.5
+
+        # Calculate disc timing
+        disc_start = transition_point + int(overlap_samples * 0.3)
+        disc_duration = len(x_disc)
+        
+        # Calculate total length needed
+        total_length = max(transition_point + overlap_samples, disc_start + disc_duration)
+        
+        # Create output array
+        output = np.zeros(total_length)
+        
+        # Add first song up to transition point
+        output[:transition_point] = x_1[:transition_point]
+        
+        # Handle the crossfade region
+        crossfade_end = min(transition_point + overlap_samples, len(x_1))
+        actual_overlap = crossfade_end - transition_point
+        
+        # Adjust fade curves to match actual overlap length
+        fade_out = fade_out[:actual_overlap]
+        fade_in = fade_in[:actual_overlap]
+        
+        # Apply crossfade
+        output[transition_point:crossfade_end] = \
+            x_1[transition_point:crossfade_end] * fade_out
+        
+        # Add second song with fade in
+        if len(x_2) >= actual_overlap:
+            output[transition_point:crossfade_end] += \
+                x_2[:actual_overlap] * fade_in
+            
+            # Add remainder of second song
+            remaining_start = crossfade_end
+            remaining_length = len(output) - remaining_start
+            if remaining_length > 0:
+                samples_to_add = min(remaining_length, len(x_2) - actual_overlap)
+                output[remaining_start:remaining_start + samples_to_add] += \
+                    x_2[actual_overlap:actual_overlap + samples_to_add]
+        
+        # Add disc scratch during crossfade
+        if disc_duration > 0:
+            # Create disc fade envelope
+            disc_fade_in_samples = int(disc_duration * 0.1)
+            disc_fade_out_samples = int(disc_duration * 0.1)
+            disc_sustain_samples = disc_duration - disc_fade_in_samples - disc_fade_out_samples
+            
+            disc_envelope = np.concatenate([
+                np.linspace(0, 1, disc_fade_in_samples),
+                np.ones(max(0, disc_sustain_samples)),
+                np.linspace(1, 0, disc_fade_out_samples)
+            ])
+            
+            # Ensure disc envelope matches disc length
+            disc_envelope = disc_envelope[:disc_duration]
+            
+            # Add disc with envelope
+            disc_end = min(disc_start + disc_duration, len(output))
+            actual_disc_samples = disc_end - disc_start
+            output[disc_start:disc_end] += x_disc[:actual_disc_samples] * disc_envelope[:actual_disc_samples]
+
+        # Normalize final output
+        output = output / np.max(np.abs(output)) * 0.95
+        
+        return output
+
+    except Exception as e:
+        print(f"Error in create_scratch_crossfade: {str(e)}")
+        return None
+
+def scratch_crossfade_main():
+    try:
+        # Load audio files
+        print("Loading audio files...")
+        x_1, fs = lb.load("bunny.mp3", sr=None)
+        x_2, fs = lb.load("music.mp3", sr=None)
+        x_disc, fs = lb.load("disc.mp3", sr=None)
+
+        print("Creating scratch crossfade transition...")
+        # Create transition with 1.5 second overlap
+        full_audio = create_scratch_crossfade(x_1, x_2, x_disc, fs, 
+                                            transition_point_ratio=0.75,
+                                            overlap_duration=1.5)
+
+        if full_audio is not None:
+            print("Saving output file...")
+            sf.write("scratch_crossfade.mp3", full_audio, fs)
+            print("Done! Output saved as 'scratch_crossfade.mp3'")
+        else:
+            print("Failed to create transition")
+
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+
+# Run the transition
+scratch_crossfade_main()
