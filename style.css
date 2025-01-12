@@ -1,93 +1,97 @@
-/* Core styles from your original CSS */
-.visualization-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
+/* Add these animations to your style.css */
+
+/* Color wave animation for background */
+.container.submitting {
+    animation: colorWave 5s infinite linear;
 }
 
-.visualization-image {
-    width: 100%;
-    height: auto;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+@keyframes colorWave {
+    0% { background: linear-gradient(45deg, #ff0080, #7928ca); }
+    20% { background: linear-gradient(45deg, #7928ca, #00c6ff); }
+    40% { background: linear-gradient(45deg, #00c6ff, #00ff80); }
+    60% { background: linear-gradient(45deg, #00ff80, #ffff00); }
+    80% { background: linear-gradient(45deg, #ffff00, #ff0080); }
+    100% { background: linear-gradient(45deg, #ff0080, #7928ca); }
 }
 
-/* Loading Animation Styles */
+/* Enhanced loading overlay */
 .loading-overlay {
     background: rgba(0, 0, 0, 0.9);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 2rem;
+    backdrop-filter: blur(8px);
 }
 
-.loading-overlay.active {
-    display: flex;
-}
-
-.loading-lights {
-    display: flex;
-    gap: 1rem;
-}
-
+/* Bright lights animation */
 .light {
-    width: 20px;
-    height: 20px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    animation: colorChange 2s infinite alternate;
+    animation: flash 1.5s infinite;
+    filter: blur(4px);
+    box-shadow: 0 0 20px currentColor;
 }
 
-.light-1 { animation-delay: 0s; }
-.light-2 { animation-delay: 0.4s; }
-.light-3 { animation-delay: 0.8s; }
-.light-4 { animation-delay: 1.2s; }
-.light-5 { animation-delay: 1.6s; }
+.light-1 { color: #ff0080; animation-delay: 0s; }
+.light-2 { color: #00ff80; animation-delay: 0.3s; }
+.light-3 { color: #8000ff; animation-delay: 0.6s; }
+.light-4 { color: #ff8000; animation-delay: 0.9s; }
+.light-5 { color: #00ffff; animation-delay: 1.2s; }
 
-@keyframes colorChange {
-    0% { background: #ff0000; box-shadow: 0 0 20px #ff0000; }
-    25% { background: #00ff00; box-shadow: 0 0 20px #00ff00; }
-    50% { background: #0000ff; box-shadow: 0 0 20px #0000ff; }
-    75% { background: #ff00ff; box-shadow: 0 0 20px #ff00ff; }
-    100% { background: #ffff00; box-shadow: 0 0 20px #ffff00; }
+@keyframes flash {
+    0%, 100% { transform: scale(1); opacity: 0.5; filter: blur(4px); }
+    50% { transform: scale(1.8); opacity: 1; filter: blur(8px); }
 }
 
+/* Music equalizer bars */
 .equalizer {
     display: flex;
-    gap: 0.5rem;
-    height: 50px;
-    align-items: flex-end;
+    gap: 8px;
+    height: 60px;
+    margin: 20px 0;
 }
 
-.equalizer .bar {
-    width: 10px;
-    background: #fff;
-    animation: equalize 1s infinite alternate;
+.bar {
+    width: 12px;
+    background: linear-gradient(to top, #ff0080, #00ff80);
+    border-radius: 6px;
+    animation: equalize 1.5s ease-in-out infinite;
 }
 
-.bar:nth-child(1) { animation-delay: 0.2s; }
-.bar:nth-child(2) { animation-delay: 0.4s; }
-.bar:nth-child(3) { animation-delay: 0.6s; }
-.bar:nth-child(4) { animation-delay: 0.8s; }
-.bar:nth-child(5) { animation-delay: 1.0s; }
+.bar:nth-child(1) { animation-delay: 0s; }
+.bar:nth-child(2) { animation-delay: 0.2s; }
+.bar:nth-child(3) { animation-delay: 0.4s; }
+.bar:nth-child(4) { animation-delay: 0.6s; }
+.bar:nth-child(5) { animation-delay: 0.8s; }
 
 @keyframes equalize {
-    0% { height: 10px; }
-    100% { height: 50px; }
+    0%, 100% { height: 20%; }
+    50% { height: 100%; }
 }
 
-.loading-text {
-    color: #fff;
-    font-size: 1.2rem;
-    animation: pulse 1.5s infinite;
+/* Success message animation */
+#success-message {
+    animation: successPop 0.5s ease-out;
 }
 
-@keyframes pulse {
-    0% { opacity: 0.6; }
-    50% { opacity: 1; }
-    100% { opacity: 0.6; }
+@keyframes successPop {
+    0% { transform: scale(0.8); opacity: 0; }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
 }
 
-.hidden {
-    display: none;
+/* Update the background circles */
+.circle {
+    filter: blur(40px);
+    opacity: 0.8;
+    animation: float 8s infinite;
+}
+
+.circle-1 { background: radial-gradient(#ff0080, transparent 60%); }
+.circle-2 { background: radial-gradient(#00ff80, transparent 60%); }
+.circle-3 { background: radial-gradient(#8000ff, transparent 60%); }
+
+@keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25% { transform: translate(10%, 10%) scale(1.1); }
+    50% { transform: translate(-5%, 5%) scale(0.9); }
+    75% { transform: translate(5%, -10%) scale(1.05); }
 }
