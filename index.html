@@ -3,55 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Share your Spotify playlist and connect with others through the power of music.">
     <title>Share Your Vibes</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+    <script src="script.js" defer></script>
 </head>
 <body>
     <div class="container">
         <!-- Animated background circles -->
         <div class="background">
-            <div class="circle circle-1"></div>
-            <div class="circle circle-2"></div>
-            <div class="circle circle-3"></div>
+            <div class="circle circle-1" aria-hidden="true"></div>
+            <div class="circle circle-2" aria-hidden="true"></div>
+            <div class="circle circle-3" aria-hidden="true"></div>
         </div>
 
         <!-- Content -->
-        <div class="content">
-            <div class="header">
+        <main class="content">
+            <header class="header">
                 <h1>Share Your Vibes</h1>
                 <p>Connect with others through the power of music. Add your Spotify playlist and start sharing.</p>
-            </div>
+            </header>
 
-            <div class="input-card">
-                <form id="playlist-form">
+            <section class="input-card">
+                <form id="playlist-form" aria-label="Share your Spotify playlist">
                     <div class="input-wrapper">
-                        <i data-lucide="music" class="music-icon"></i>
+                        <i data-lucide="music" class="music-icon" aria-hidden="true"></i>
+                        <label for="playlist-url" class="visually-hidden">Spotify Playlist URL</label>
                         <input 
-                            type="text" 
+                            type="url" 
                             id="playlist-url" 
+                            name="playlist-url"
                             placeholder="Paste your Spotify playlist URL"
+                            required 
+                            pattern="https?://.*"
                         >
                     </div>
                     <button type="submit">
                         Share Playlist
-                        <i data-lucide="arrow-right"></i>
+                        <i data-lucide="arrow-right" aria-hidden="true"></i>
                     </button>
                 </form>
 
-                <div id="success-message" class="hidden">
+                <div id="success-message" class="hidden" role="status">
                     <div class="success-icon">
-                        <i data-lucide="music"></i>
+                        <i data-lucide="check-circle"></i>
                     </div>
                     <h3>Playlist Added!</h3>
                     <p>Your musical vibes are now part of our community.</p>
                     <button id="add-another">Add another playlist</button>
                 </div>
-            </div>
+            </section>
 
             <p class="note">Note: Make sure your playlist is set to public on Spotify</p>
-        </div>
+        </main>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
 </html>
