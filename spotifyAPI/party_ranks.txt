@@ -1,0 +1,71 @@
+Normalized Party Scores for all songs (ascending order):
+--------------------------------------------------
+Lorde - Royals (US Version).mp3.mp3: 0.00
+Jason Derulo - Talk Dirty feat. 2 Chainz [Official HD Music Video].mp3.mp3: 0.01
+Blake Shelton - Sure Be Cool If You Did (Official Music Video).mp3.mp3: 0.01
+CHVRCHES - The Mother We Share.mp3.mp3: 0.02
+Maroon 5 - Daylight (Official Music Video).mp3.mp3: 0.02
+Klangkarussell - Sonnentanz ft. Will Heard.mp3.mp3: 0.03
+Florida Georgia Line - Cruise.mp3.mp3: 0.04
+Bastille - Pompeii (Official Music Video).mp3.mp3: 0.05
+Imagine Dragons - Radioactive.mp3.mp3: 0.05
+Imagine Dragons - Demons (Official Music Video).mp3.mp3: 0.07
+Eminem ft. Rihanna - The Monster (Explicit) [Official Video].mp3.mp3: 0.07
+Taylor Swift - Everything Has Changed ft. Ed Sheeran.mp3.mp3: 0.08
+Phillip Phillips - Home.mp3.mp3: 0.09
+Capital Cities - Safe And Sound.mp3.mp3: 0.10
+Drake - Started From the Bottom.mp3.mp3: 0.10
+Bridgit Mendler - Ready or Not.mp3.mp3: 0.10
+JAY-Z - Holy Grail ft. Justin Timberlake.mp3.mp3: 0.11
+Demi Lovato - Heart Attack (Official Video).mp3.mp3: 0.11
+Selena Gomez - Come & Get It.mp3.mp3: 0.11
+Christina Perri - A Thousand Years [Official Music Video].mp3.mp3: 0.11
+Armin van Buuren feat. Trevor Guthrie - This Is What It Feels Like (Official Music Video).mp3.mp3: 0.11
+Robin Thicke - Blurred Lines ft. T.I., Pharrell.mp3.mp3: 0.12
+Katy Perry - Unconditionally (Official).mp3.mp3: 0.12
+The Lumineers - Ho Hey (Official Video).mp3.mp3: 0.14
+Flo Rida - I Cry [Official Video].mp3.mp3: 0.15
+2 Chainz & Wiz Khalifa - We Own It (Fast & Furious ⧸ Official Lyric Video).mp3.mp3: 0.17
+Bruno Mars - When I Was Your Man (Official Music Video).mp3.mp3: 0.18
+Zedd - Clarity ft. Foxes.mp3.mp3: 0.22
+Tom Odell - Another Love (Official Video).mp3.mp3: 0.22
+Miley Cyrus - Wrecking Ball (Official Video).mp3.mp3: 0.24
+P!nk - Just Give Me A Reason ft. Nate Ruess.mp3.mp3: 0.25
+Pitbull - Feel This Moment (Official Video) ft. Christina Aguilera.mp3.mp3: 0.26
+Kodaline - All I Want (Part 1).mp3.mp3: 0.26
+P!nk - Try (Official Video).mp3.mp3: 0.29
+Kodaline - High Hopes.mp3.mp3: 0.34
+Christina Perri - Human [Official Video].mp3.mp3: 0.35
+Ciara - Body Party (Official Video).mp3.mp3: 0.35
+will.i.am - Scream & Shout ft. Britney Spears.mp3.mp3: 0.35
+David Guetta - Play Hard ft. Ne-Yo, Akon (Official Video).mp3.mp3: 0.36
+Olly Murs - Dear Darlin'.mp3.mp3: 0.39
+Michael Bublé - It's A Beautiful Day [Official Music Video] (New 4K Upgrade).mp3.mp3: 0.40
+Hold On, We're Going Home (feat. Majid Jordan).mp3.mp3: 0.40
+Pitbull - Don't Stop The Party ft. TJR.mp3.mp3: 0.41
+Passenger ｜ Let Her Go (Official Video).mp3.mp3: 0.41
+Bruno Mars - Treasure (Official Music Video).mp3.mp3: 0.44
+Wale f. Rihanna - Bad (Remix) [Official Audio].mp3.mp3: 0.45
+Justin Timberlake - Mirrors (Official Video).mp3.mp3: 0.45
+MACKLEMORE & RYAN LEWIS - SAME LOVE feat. MARY LAMBERT (OFFICIAL VIDEO).mp3.mp3: 0.46
+A$AP ROCKY - F＊＊kin' Problems ft. Drake, 2 Chainz, Kendrick Lamar.mp3.mp3: 0.47
+P!nk - True Love (Official Video) ft. Lily Allen.mp3.mp3: 0.50
+The 1975 - Chocolate (Official Video).mp3.mp3: 0.51
+Mumford & Sons - I Will Wait (Official Music Video).mp3.mp3: 0.53
+Arctic Monkeys - Why'd You Only Call Me When You're High？ (Official Video).mp3.mp3: 0.54
+Calvin Harris - Sweet Nothing (Official Video) ft. Florence Welch.mp3.mp3: 0.55
+John Newman - Love Me Again.mp3.mp3: 0.56
+Paramore： Still Into You [OFFICIAL VIDEO].mp3.mp3: 0.58
+One Direction - Best Song Ever.mp3.mp3: 0.58
+Childish Gambino - 3005.mp3.mp3: 0.65
+Rudimental - Waiting All Night (ft. Ella Eyre) [Official Video].mp3.mp3: 0.73
+Avicii vs Nicky Romero - I Could Be The One (Nicktim).mp3.mp3: 0.73
+Ellie Goulding - Burn (Official Video).mp3.mp3: 0.74
+Jason Derulo - ＂The Other Side＂ (Official HD Music Video).mp3.mp3: 0.76
+Naughty Boy - La la la ft. Sam Smith.mp3.mp3: 0.76
+Sebastian Ingrosso & Tommy Trash feat. John Martin - Reload (Radio Edit).mp3.mp3: 0.76
+Bruno Mars - Locked Out Of Heaven (Official Music Video).mp3.mp3: 0.79
+Calvin Harris - Thinking About You ft. Ayah Marar.mp3.mp3: 0.82
+Justin Timberlake - Suit & Tie (Official Video) ft. Jay-Z.mp3.mp3: 1.00
+
+Average normalized party score: 0.33

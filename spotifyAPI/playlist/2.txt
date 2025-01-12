@@ -1,0 +1,7 @@
+Demons,Imagine Dragons,https://open.spotify.com/track/3LlAyCYU26dvFZBDUIMb7a,https://i.scdn.co/image/ab67616d0000b273b2b2747c89d2157b0b29fb6a
+Daylight,Maroon 5,https://open.spotify.com/track/6TwfdLbaxTKzQi3AgsZNzx,https://i.scdn.co/image/ab67616d0000b2739d41d73f973cb817462e068a
+I Knew You Were Trouble.,Taylor Swift,https://open.spotify.com/track/6FB3v4YcR57y4tXFcdxI1E,https://i.scdn.co/image/ab67616d0000b2731c248e90c3e569f90aef9dec
+Roar,Katy Perry,https://open.spotify.com/track/6F5c58TMEs1byxUstkzVeM,https://i.scdn.co/image/ab67616d0000b27347f930accd8ac01686401fa2
+Power Trip (feat. Miguel),J. Cole,https://open.spotify.com/track/2uwnP6tZVVmTovzX5ELooy,https://i.scdn.co/image/ab67616d0000b273c1bb124f993488cf21b269fc
+Beauty And A Beat,Justin Bieber,https://open.spotify.com/track/190jyVPHYjAqEaOGmMzdyk,https://i.scdn.co/image/ab67616d0000b2736c20c4638a558132ba95bc39
+Stay,Rihanna,https://open.spotify.com/track/789CxjEOtO76BVD1A9yJQH,https://i.scdn.co/image/ab67616d0000b273e24cbbd5cef05ca77ec67df6

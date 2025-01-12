@@ -91,16 +91,32 @@ def process_playlist_folder():
     # Sort results by normalized party score (ascending order)
     sorted_results = dict(sorted(results.items(), key=lambda x: x[1]))
 
-    # Print results
-    print("\nNormalized Party Scores for all songs (ascending order):")
-    print("-" * 50)
-    for song, score in sorted_results.items():
-        print(f"{song}: {score:.2f}")
-    
-    # Calculate average party score
-    if results:
-        avg_score = sum(results.values()) / len(results)
-        print("\nAverage normalized party score: {:.2f}".format(avg_score))
+    # Create a dictionary to store the normalized values
+    normalized_songs = {}
+
+    # Append each song and its normalized score to the dictionary
+    for song, normalized_score in sorted_results.items():
+        normalized_songs[song] = normalized_score
+
+    # Write results to a text file with UTF-8 encoding
+    try:
+        with open('party_ranks.txt', 'w', encoding='utf-8') as f:
+            f.write("Normalized Party Scores for all songs (ascending order):\n")
+            f.write("-" * 50 + "\n")
+            for song, score in sorted_results.items():
+                f.write(f"{song}: {score:.2f}\n")
+            
+            # Calculate average party score
+            avg_score = sum(results.values()) / len(results) if results else 0
+            f.write("\nAverage normalized party score: {:.2f}".format(avg_score))
+        print("Results written to 'party_ranks.txt'")
+
+        # Optionally, print the normalized songs dictionary
+        print("\nNormalized Songs Dictionary:")
+        print(normalized_songs)
+
+    except Exception as e:
+        print(f"Error writing to file: {str(e)}")
 
 if __name__ == "__main__":
     process_playlist_folder()
