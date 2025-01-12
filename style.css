@@ -1,183 +1,93 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* Core styles from your original CSS */
+.visualization-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+.visualization-image {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.container {
-    min-height: 100vh;
-    background: linear-gradient(to bottom right, #4c1d95, #1e3a8a);
-    display: flex;
+/* Loading Animation Styles */
+.loading-overlay {
+    background: rgba(0, 0, 0, 0.9);
+    display: none;
+    align-items: center;
+    justify-content: center;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    position: relative;
-    overflow: hidden;
+    gap: 2rem;
 }
 
-/* Background Animations */
-.background {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-}
-
-.circle {
-    position: absolute;
-    width: 16rem;
-    height: 16rem;
-    border-radius: 50%;
-    filter: blur(24px);
-    animation: pulse 2s infinite;
-}
-
-.circle-1 {
-    background-color: rgba(147, 51, 234, 0.2);
-    top: -8rem;
-    left: -8rem;
-}
-
-.circle-2 {
-    background-color: rgba(37, 99, 235, 0.2);
-    top: 50%;
-    right: 8rem;
-}
-
-.circle-3 {
-    background-color: rgba(79, 70, 229, 0.2);
-    bottom: 8rem;
-    left: -8rem;
-}
-
-/* Content Styles */
-.content {
-    position: relative;
-    z-index: 10;
-    max-width: 42rem;
-    width: 100%;
-    text-align: center;
-}
-
-.header {
-    margin-bottom: 2rem;
-}
-
-h1 {
-    color: white;
-    font-size: 2.25rem;
-    font-weight: bold;
-    margin-bottom: 1rem;
-}
-
-.input-card {
-    background-color: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(8px);
-    border-radius: 1rem;
-    padding: 2rem;
-    margin-bottom: 1.5rem;
-}
-
-.input-wrapper {
+.loading-overlay.active {
     display: flex;
-    align-items: center;
+}
+
+.loading-lights {
+    display: flex;
     gap: 1rem;
-    padding: 0.75rem;
-    background-color: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 0.5rem;
-    margin-bottom: 1rem;
 }
 
-input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    color: white;
-    outline: none;
-}
-
-input::placeholder {
-    color: rgba(216, 180, 254, 0.8);
-}
-
-button {
-    width: 100%;
-    padding: 0.75rem 1.5rem;
-    background-color: #9333ea;
-    color: white;
-    border: none;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    transition: background-color 0.2s;
-}
-
-button:hover {
-    background-color: #7e22ce;
-}
-
-.note {
-    color: rgba(216, 180, 254, 0.8);
-    font-size: 0.875rem;
-}
-
-/* Success State */
-.success-icon {
-    width: 4rem;
-    height: 4rem;
-    background-color: rgba(34, 197, 94, 0.2);
+.light {
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
+    animation: colorChange 2s infinite alternate;
+}
+
+.light-1 { animation-delay: 0s; }
+.light-2 { animation-delay: 0.4s; }
+.light-3 { animation-delay: 0.8s; }
+.light-4 { animation-delay: 1.2s; }
+.light-5 { animation-delay: 1.6s; }
+
+@keyframes colorChange {
+    0% { background: #ff0000; box-shadow: 0 0 20px #ff0000; }
+    25% { background: #00ff00; box-shadow: 0 0 20px #00ff00; }
+    50% { background: #0000ff; box-shadow: 0 0 20px #0000ff; }
+    75% { background: #ff00ff; box-shadow: 0 0 20px #ff00ff; }
+    100% { background: #ffff00; box-shadow: 0 0 20px #ffff00; }
+}
+
+.equalizer {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1rem;
+    gap: 0.5rem;
+    height: 50px;
+    align-items: flex-end;
 }
 
-#success-message {
-    text-align: center;
+.equalizer .bar {
+    width: 10px;
+    background: #fff;
+    animation: equalize 1s infinite alternate;
 }
 
-#success-message h3 {
-    color: white;
-    font-size: 1.25rem;
-    margin-bottom: 0.5rem;
+.bar:nth-child(1) { animation-delay: 0.2s; }
+.bar:nth-child(2) { animation-delay: 0.4s; }
+.bar:nth-child(3) { animation-delay: 0.6s; }
+.bar:nth-child(4) { animation-delay: 0.8s; }
+.bar:nth-child(5) { animation-delay: 1.0s; }
+
+@keyframes equalize {
+    0% { height: 10px; }
+    100% { height: 50px; }
 }
 
-#success-message p {
-    color: rgba(216, 180, 254, 0.8);
-    margin-bottom: 1rem;
+.loading-text {
+    color: #fff;
+    font-size: 1.2rem;
+    animation: pulse 1.5s infinite;
 }
 
-#add-another {
-    background: transparent;
-    color: rgba(216, 180, 254, 0.8);
-}
-
-#add-another:hover {
-    color: white;
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
 }
 
 .hidden {
     display: none;
-}
-
-@keyframes pulse {
-    0% { opacity: 0.4; }
-    50% { opacity: 0.6; }
-    100% { opacity: 0.4; }
-}
-
-@media (min-width: 768px) {
-    h1 {
-        font-size: 3.75rem;
-    }
 }
