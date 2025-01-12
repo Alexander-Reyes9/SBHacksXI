@@ -4,7 +4,11 @@ import numpy as np
 from scipy.signal import fftconvolve
 import soundfile as sf
 
-def create_reverb_tail(audio, sr=22050, room_size=0.8, damping=0.4, decay=3.0):
+def create_reverb_tail(audio):
+    sr = 22050
+    room_size=0.8
+    damping=0.4
+    decay=3.0
     """
     Create a more pronounced reverb tail for smooth transition
     """
@@ -133,7 +137,10 @@ except Exception as e:
     print(f"An error occurred: {str(e)}")
 
 
-def create_scratch_transition(x_1, x_2, x_disc, fs, transition_point_ratio=0.75):
+def create_scratch_transition(x_1, x_2):
+    x_disc, fs = lb.load("disc.mp3", sr=None)
+    x_disc = x_disc[:int(fs * 3)]  # Limit disc scratch to 100ms
+    transition_point_ratio=0.75
     """
     Create a transition using disc scratch sound between two songs
     
@@ -214,7 +221,7 @@ def scratch_transition_main():
 
         print("Creating scratch transition...")
         # Create transition
-        full_audio = create_scratch_transition(x_1, x_2, x_disc, fs)
+        full_audio = create_scratch_transition(x_1, x_2)
 
         if full_audio is not None:
             print("Saving output file...")
@@ -228,7 +235,10 @@ def scratch_transition_main():
         print(f"An error occurred: {str(e)}")
 
 scratch_transition_main()
-def create_scratch_crossfade(x_1, x_2, x_disc, fs, transition_point_ratio=0.75, overlap_duration=1.0):
+def create_scratch_crossfade(x_1, x_2):
+    overlap_duration=1.0
+    transition_point_ratio=0.75
+    x_disc, fs = lb.load("disc.mp3", sr=None)
     """
     Create a crossfade transition with overlapping songs and disc scratch effect
     """
@@ -332,9 +342,7 @@ def scratch_crossfade_main():
 
         print("Creating scratch crossfade transition...")
         # Create transition with 1.5 second overlap
-        full_audio = create_scratch_crossfade(x_1, x_2, x_disc, fs, 
-                                            transition_point_ratio=0.75,
-                                            overlap_duration=1.5)
+        full_audio = create_scratch_crossfade(x_1, x_2)
 
         if full_audio is not None:
             print("Saving output file...")
