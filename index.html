@@ -1,68 +1,86 @@
-// Initialize Lucide icons
-lucide.createIcons();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Share your Spotify playlist and connect with others through the power of music.">
+    <title>Share Your Vibes</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Animated background circles -->
+        <div class="background">
+            <div class="circle circle-1" aria-hidden="true"></div>
+            <div class="circle circle-2" aria-hidden="true"></div>
+            <div class="circle circle-3" aria-hidden="true"></div>
+        </div>
 
-// DOM Elements
-const playlistForm = document.getElementById('playlist-form');
-const successMessage = document.getElementById('success-message');
-const loadingOverlay = document.querySelector('.loading-overlay');
-const visualizationImg = document.getElementById('visualization');
+        <!-- Content -->
+        <main class="content">
+            <header class="header">
+                <h1>Share Your Vibes</h1>
+                <p>Connect with others through the power of music. Add your Spotify playlist and start sharing.</p>
+            </header>
 
-// Form submission handler
-playlistForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const playlistUrl = document.getElementById('playlist-url').value;
-    
-    if (!isValidSpotifyUrl(playlistUrl)) {
-        alert('Please enter a valid Spotify playlist URL');
-        return;
-    }
+            <section class="input-card">
+                <form id="playlist-form" aria-label="Share your Spotify playlist">
+                    <div class="input-wrapper">
+                        <i data-lucide="music" class="music-icon" aria-hidden="true"></i>
+                        <label for="playlist-url" class="visually-hidden">Spotify Playlist URL</label>
+                        <input 
+                            type="url" 
+                            id="playlist-url" 
+                            name="playlist-url"
+                            placeholder="Paste your Spotify playlist URL"
+                            required 
+                            pattern="https?://.spotify\.com/playlist/."
+                            title="Please enter a valid Spotify playlist URL"
+                        >
+                    </div>
+                    <button type="submit">
+                        Share Playlist
+                        <i data-lucide="arrow-right" aria-hidden="true"></i>
+                    </button>
+                </form>
 
-    loadingOverlay.classList.add('active');
-    
-    try {
-        // Here you would typically make an API call to your backend
-        await processPlaylist(playlistUrl);
-        await loadVisualization();
-        
-        // Show success message
-        successMessage.classList.remove('hidden');
-        playlistForm.classList.add('hidden');
-    } catch (error) {
-        console.error('Error:', error);
-        alert('There was an error processing your playlist. Please try again.');
-    } finally {
-        loadingOverlay.classList.remove('active');
-    }
-});
+                <div id="success-message" class="hidden" role="status">
+                    <div class="success-icon">
+                        <i data-lucide="check-circle"></i>
+                    </div>
+                    <h3>Playlist Added!</h3>
+                    <p>Your musical vibes are now part of our community.</p>
+                    <button id="add-another" type="button">Add another playlist</button>
+                </div>
+            </section>
 
-// Add another playlist button handler
-document.getElementById('add-another').addEventListener('click', () => {
-    successMessage.classList.add('hidden');
-    playlistForm.classList.remove('hidden');
-    document.getElementById('playlist-url').value = '';
-});
+            <p class="note">Note: Make sure your playlist is set to public on Spotify</p>
 
-// Utility Functions
-async function loadVisualization() {
-    try {
-        const response = await fetch('/api/visualization');
-        if (!response.ok) throw new Error('Failed to load visualization');
-        const base64Data = await response.text();
-        visualizationImg.src = `data:image/png;base64,${base64Data}`;
-    } catch (error) {
-        console.error('Error loading visualization:', error);
-        throw error;
-    }
-}
+            <div class="visualization-container">
+                <img id="visualization" class="visualization-image" alt="Music visualization">
+            </div>
+        </main>
 
-function isValidSpotifyUrl(url) {
-    return url.includes('spotify.com/playlist/');
-}
-
-async function processPlaylist(url) {
-    // Simulate processing time - replace with actual API call
-    await new Promise(resolve => setTimeout(resolve, 3000));
-}
-
-// Load visualization on page load
-window.addEventListener('load', loadVisualization);
+        <!-- Loading overlay -->
+        <div class="loading-overlay" role="alert" aria-busy="true">
+            <div class="loading-lights">
+                <div class="light light-1"></div>
+                <div class="light light-2"></div>
+                <div class="light light-3"></div>
+                <div class="light light-4"></div>
+                <div class="light light-5"></div>
+            </div>
+            <div class="equalizer">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+            <p class="loading-text">Analyzing your musical vibes...</p>
+        </div>
+    </div>
+</body>
+</html>
