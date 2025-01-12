@@ -1,64 +1,65 @@
 // Initialize Lucide icons
 lucide.createIcons();
 
-// DOM Elements
 const playlistForm = document.getElementById('playlist-form');
-const successMessage = document.getElementById('success-message');
+const container = document.querySelector('.container');
 const loadingOverlay = document.querySelector('.loading-overlay');
-const visualizationImg = document.getElementById('visualization');
+const successMessage = document.getElementById('success-message');
 
-// Form submission handler
 playlistForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    document.querySelector('.loading-overlay').classList.add('active');
-    const form = e.target;
-    const successMessage = document.getElementById('success-message');
+    const playlistUrl = document.getElementById('playlist-url').value;
     
-    form.classList.add('hidden');
+    if (!playlistUrl.includes('spotify.com/playlist/')) {
+        alert('Please enter a valid Spotify playlist URL');
+        return;
+    }
+
+    // Add submitting class to container for color wave effect
+    container.classList.add('submitting');
+    
+    // Show loading overlay with animations
+    loadingOverlay.classList.add('active');
     
     try {
-        // Simulate analysis time (replace with actual API call)
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        // Simulate processing time (replace with actual API call)
+        await new Promise(resolve => setTimeout(resolve, 5000));
         
         // Show success message
         successMessage.classList.remove('hidden');
+        playlistForm.classList.add('hidden');
+        
+        // Optional: Add confetti effect on success
+        createConfetti();
     } catch (error) {
         console.error('Error:', error);
-        form.classList.remove('hidden');
-        // Optional: Add error handling UI here
     } finally {
         loadingOverlay.classList.remove('active');
+        // Remove color wave effect after delay
+        setTimeout(() => {
+            container.classList.remove('submitting');
+        }, 2000);
     }
 });
 
-// Add event listener for "Add another playlist" button
+// Optional: Add confetti effect
+function createConfetti() {
+    for (let i = 0; i < 100; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.animationDelay = Math.random() * 3 + 's';
+        confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+        document.body.appendChild(confetti);
+        
+        // Remove confetti after animation
+        setTimeout(() => confetti.remove(), 3000);
+    }
+}
+
+// Reset form
 document.getElementById('add-another').addEventListener('click', () => {
-    document.getElementById('success-message').classList.add('hidden');
-    document.getElementById('playlist-form').classList.remove('hidden');
+    successMessage.classList.add('hidden');
+    playlistForm.classList.remove('hidden');
     document.getElementById('playlist-url').value = '';
 });
-
-// Utility Functions
-async function loadVisualization() {
-    try {
-        const response = await fetch('/api/visualization');
-        if (!response.ok) throw new Error('Failed to load visualization');
-        const base64Data = await response.text();
-        visualizationImg.src = `data:image/png;base64,${base64Data}`;
-    } catch (error) {
-        console.error('Error loading visualization:', error);
-        throw error;
-    }
-}
-
-function isValidSpotifyUrl(url) {
-    return url.includes('spotify.com/playlist/');
-}
-
-async function processPlaylist(url) {
-    // Simulate processing time - replace with actual API call
-    await new Promise(resolve => setTimeout(resolve, 3000));
-}
-
-// Load visualization on page load
-window.addEventListener('load', loadVisualization);
