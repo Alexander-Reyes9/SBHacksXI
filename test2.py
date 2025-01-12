@@ -4,11 +4,7 @@ import numpy as np
 from scipy.signal import fftconvolve
 import soundfile as sf
 
-def create_reverb_tail(audio):
-    sr = 22050
-    room_size=0.8
-    damping=0.4
-    decay=3.0
+def create_reverb_tail(audio, sr=22050, room_size=0.8, damping=0.4, decay=3.0):
     """
     Create a more pronounced reverb tail for smooth transition
     """
@@ -33,6 +29,73 @@ def create_reverb_tail(audio):
         reverb_tail = reverb_tail * (input_rms / reverb_rms) * 1.1
     
     return reverb_tail
+
+def create_reverb_transition(audio1, audio2, sr=22050, transition_length_ms=5000):
+    """
+    Create a smooth transition between two audio segments using reverb
+    
+    Parameters:
+    -----------
+    audio1 : np.ndarray
+        First audio signal
+    audio2 : np.ndarray
+        Second audio signal
+    sr : int
+        Sampling rate
+    transition_length_ms : int
+        Transition length in milliseconds
+    """
+    # Calculate transition points (75% through first song)
+    transition_point = int(len(audio1) * 0.75)
+    transition_samples = int((transition_length_ms / 1000) * sr)
+
+    # Create reverb tail for the end of first song
+    reverb_segment = audio1[transition_point-transition_samples:transition_point]
+    reverb_tail = create_reverb_tail(reverb_segment)
+
+    # Calculate the overlap window
+    overlap_start = transition_point - transition_samples
+    overlap_length = len(reverb_tail)
+
+    # Create overlapping fade curves
+    fade_out = np.linspace(1, 0, overlap_length)**1.5
+    fade_in = np.linspace(0, 1, overlap_length)**1.5
+
+    # Create output array
+    output_length = transition_point + len(reverb_tail)
+    transition = np.zeros(output_length)
+
+    # Add first song up to the end
+    transition[:transition_point] = audio1[:transition_point]
+
+    # Add reverb tail with fade out
+    reverb_start = overlap_start
+    reverb_end = reverb_start + overlap_length
+    transition[reverb_start:reverb_end] = \
+        transition[reverb_start:reverb_end] * fade_out + reverb_tail * fade_out * 0.85
+
+    # Add second song with fade in starting at the same point
+    second_song_fade = audio2[:overlap_length]
+    transition[reverb_start:reverb_end] += second_song_fade * fade_in * 0.95
+
+    # Add the rest of the second song
+    remaining_start = reverb_end
+    remaining_samples = len(audio2[overlap_length:])
+    if remaining_samples > 0:
+        remaining_end = remaining_start + remaining_samples
+        if remaining_end > len(transition):
+            remaining_end = len(transition)
+        transition[remaining_start:remaining_end] += audio2[overlap_length:overlap_length + (remaining_end - remaining_start)]
+
+    # Final volume normalization while preserving dynamics
+    max_amplitude = np.max(np.abs(transition))
+    if max_amplitude > 0:
+        transition = transition * (0.95 / max_amplitude)
+
+    return transition
+
+
+## Pay attention here to how to preprocess the audio files for it to work. Hopefully not all steps are needed.
 
 try:
     # Load the first and second songs
@@ -68,58 +131,8 @@ try:
     y1 = lb.resample(y=y1, orig_sr=song1.frame_rate, target_sr=22050)
     y2 = lb.resample(y=y2, orig_sr=song2.frame_rate, target_sr=22050)
 
-    # Calculate transition points (75% through first song)
-    transition_point = int(len(y1) * 0.75)
-    transition_samples = int((transition_length / 1000) * 22050)
-
-    # Create reverb tail for the end of first song
-    reverb_segment = y1[transition_point-transition_samples:transition_point]
-    reverb_tail = create_reverb_tail(
-        reverb_segment, 
-        sr=22050,
-        room_size=0.8,
-        damping=0.4,
-        decay=3.0
-    )
-
-    # Calculate the overlap window
-    overlap_start = transition_point - transition_samples
-    overlap_length = len(reverb_tail)
-
-    # Create overlapping fade curves
-    fade_out = np.linspace(1, 0, overlap_length)**1.5
-    fade_in = np.linspace(0, 1, overlap_length)**1.5
-
-    # Create output array
-    output_length = transition_point + len(reverb_tail)
-    transition = np.zeros(output_length)
-
-    # Add first song up to the end
-    transition[:transition_point] = y1[:transition_point]
-
-    # Add reverb tail with fade out
-    reverb_start = overlap_start
-    reverb_end = reverb_start + overlap_length
-    transition[reverb_start:reverb_end] = \
-        transition[reverb_start:reverb_end] * fade_out + reverb_tail * fade_out * 0.85
-
-    # Add second song with fade in starting at the same point
-    second_song_fade = y2[:overlap_length]
-    transition[reverb_start:reverb_end] += second_song_fade * fade_in * 0.95
-
-    # Add the rest of the second song
-    remaining_start = reverb_end
-    remaining_samples = len(y2[overlap_length:])
-    if remaining_samples > 0:
-        remaining_end = remaining_start + remaining_samples
-        if remaining_end > len(transition):
-            remaining_end = len(transition)
-        transition[remaining_start:remaining_end] += y2[overlap_length:overlap_length + (remaining_end - remaining_start)]
-
-    # Final volume normalization while preserving dynamics
-    max_amplitude = np.max(np.abs(transition))
-    if max_amplitude > 0:
-        transition = transition * (0.95 / max_amplitude)
+    # Create transition
+    transition = create_reverb_transition(y1, y2)
 
     # Convert back to AudioSegment
     transition_segment = pd.AudioSegment(
